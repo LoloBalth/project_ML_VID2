@@ -8,6 +8,84 @@ from streamlit_webrtc import webrtc_streamer, VideoTransformerBase, WebRtcMode, 
 import asyncio
 import logging
 
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
+# WebRTC configuration for STUN server
+RTC_CONFIGURATION = RTCConfiguration({
+    "iceServers": [
+        {"urls": ["stun:stun.l.google.com:19302"]},
+    ]
+})
+
+
+class MyTransport:
+    def __init__(self):
+        self._sock = None
+        self._protocol = None
+
+    async def initialize_socket(self):
+        loop = asyncio.get_event_loop()
+        try:
+            self._protocol = asyncio.DatagramProtocol()
+            self._sock = await loop.create_datagram_endpoint(lambda: self._protocol, local_addr=('localhost', 12345))
+            logging.info("Socket initialized successfully.")
+        except Exception as e:
+            logging.error(f"Error initializing socket: {e}")
+
+    async def send_data(self, data, addr):
+        if self._sock is None:
+            await self.initialize_socket()
+        try:
+            if self._sock is not None:
+                self._sock.sendto(data, addr)
+            else:
+                logging.error("Socket is not initialized.")
+        except Exception as e:
+            logging.error(f"Error sending data: {e}")
+
+
+def filter_predictions(predictions: List[Dict[str, Any]], confidence_threshold: float) -> List[Dict[str, Any]]:
+    return [pred for pred in predictions if pred.get('confidence', 0) >= confidence_threshold]
+
+
+class VideoTransformer(VideoTransformerBase):
+    def __init__(self, model_id: str, confidence_threshold: float):
+        self.model_id = model_id
+        self.confidence_threshold = confidence_threshold
+        self.client = InferenceHTTPClient(
+            api_url="https://detect.roboflow.com",
+            api_key="yVnoBqLgjl2tRxWIWMvx"
+        )
+
+    def transform(self, frame: np.ndarray) -> np.ndarray:
+        try:
+            # Convert frame to PIL image for inference
+            frame_pil = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            result: Dict[str, Any] = self.client.infer(frame_pil, model_id=self.model_id)
+            output_dict: Dict[str, Any] = result
+
+            # Filter predictions
+            filtered_predictions = filter_predictions(output_dict.get('predictions', []), self.confidence_threshold)
+
+            if filtered_predictions:
+                self.draw_polygons_on_frame(frame, filtered_predictions)
+
+        except Exception as e:
+            st.error(f"Error processing frame: {e}")
+        return frame
+
+    def draw_polygons_on_frame(self, frame: np.ndarray, predictions: List[Dict[str, Any]]) ->import streamlit as st
+import numpy as np
+import cv2
+from PIL import Image
+from typing import List, Dict, Any
+from inference_sdk import InferenceHTTPClient
+from streamlit_webrtc import webrtc_streamer, VideoTransformerBase, WebRtcMode, RTCConfiguration
+import asyncio
+import logging
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
@@ -145,19 +223,21 @@ def handle_asyncio_exceptions(loop):
         st.error(f"AsyncIO Exception: {msg}")
 
     loop.set_exception_handler(handle_exception)
-
-# # # Main function for Streamlit app
-  def main():
-  st.title("Nail Detection with WebRTC")
-
+  
     # Handle asyncio exceptions
     loop = asyncio.get_event_loop()
     handle_asyncio_exceptions(loop)
+  
+# # # # Main function for Streamlit app
+#   def main():
+#   st.title("Nail Detection with WebRTC")
 
-#  # Run the nails detection page
-    nails_page()
 
-# # Run the app
-    if __name__ == "__appli__":
-    appli()
+
+# #  # Run the nails detection page
+#     nails_page()
+
+# # # Run the app
+#     if __name__ == "__appli__":
+#     appli()
 
