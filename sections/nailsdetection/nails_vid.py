@@ -8,7 +8,7 @@ from streamlit_webrtc import VideoTransformerBase, webrtc_streamer
 import asyncio
 
 # Assurer que la boucle d'événements est correctement créée
-loop = asyncio.get_event_loop()
+#loop = asyncio.get_event_loop()
 class VideoTransformer(VideoTransformerBase):
     def __init__(self, model_id: str, confidence_threshold: float):
         self.model_id = model_id
