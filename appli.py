@@ -71,6 +71,3 @@ def handle_exception(loop, context):
         print(f"Exception: {exception}")
     else:
         print(f"Context: {context}")
-
-loop = asyncio.get_event_loop()
-loop.set_exception_handler(handle_exception)
