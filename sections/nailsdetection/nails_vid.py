@@ -154,8 +154,8 @@ def handle_asyncio_exceptions(loop):
     loop = asyncio.get_event_loop()
     handle_asyncio_exceptions(loop)
 
-#     # Run the nails detection page
-#     nails_page()
+ # Run the nails detection page
+  nails_page()
 
 # # Run the app
 # if __name__ == "__main__":
