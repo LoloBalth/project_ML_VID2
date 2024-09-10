@@ -104,3 +104,6 @@ class VideoTransformer(VideoTransformerBase):
 def app():
     st.title("Simple WebRTC Streamer")
     webrtc_streamer(key="simple_streamer", video_transformer_factory=VideoTransformer)
+
+if __name__ == "__main__":
+    app()
