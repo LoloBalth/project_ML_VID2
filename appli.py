@@ -62,12 +62,3 @@ elif type_data == "NailsDetection":
 
 else:
     st.write("Choose an option")
-
-import asyncio
-
-def handle_exception(loop, context):
-    exception = context.get("exception")
-    if exception:
-        print(f"Exception: {exception}")
-    else:
-        print(f"Context: {context}")
