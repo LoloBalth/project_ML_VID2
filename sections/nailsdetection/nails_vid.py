@@ -43,27 +43,28 @@ class MyTransport:
         logging.error(f"Error sending data: {e}")
 
 # Transformer class for video processing
-class VideoTransformer(VideoTransformerBase):
-    def __init__(self, model_id: str, confidence_threshold: float):
-        self.model_id = model_id
-        self.confidence_threshold = confidence_threshold
-        self.client = InferenceHTTPClient(
-            api_url="https://detect.roboflow.com",
-            api_key="yVnoBqLgjl2tRxWIWMvx"
-        )
-    
-    def transform(self, frame: np.ndarray) -> np.ndarray:
-        try:
-            # Convert the frame to PIL image for inference
-            frame_pil = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-            result: Dict[str, Any] = self.client.infer(frame_pil, model_id=self.model_id)
-            output_dict: Dict[str, Any] = result
-            
-            def filter_predictions(predictions: List[Dict[str, Any]], confidence_threshold: float) -> List[Dict[str, Any]]:
-                return [
-                    pred for pred in predictions
-                    if pred.get('confidence', 0) >= confidence_threshold
-                ]
+class MyTransport:
+  def __init__(self):
+    self._sock = None
+    self._protocol = None
+
+  async def initialize_socket(self):
+    loop = asyncio.get_event_loop()
+    try:
+      self._protocol = asyncio.DatagramProtocol()
+      self._sock = await loop.create_datagram_endpoint(lambda: self._protocol, local_addr=('localhost', 12345))
+      logging.info("Socket initialized successfully.")
+    except Exception as e:
+      logging.error(f"Error initializing socket: {e}")
+
+  async def send_data(self, data, addr):
+    if self._sock is None:
+      await self.initialize_socket()
+    if self._sock is not None:
+      try:
+        self._sock.sendto(data, addr)
+      except Exception as e:
+        logging.error(f"Error sending data: {e}")
             
             # Filter predictions by confidence threshold
             filtered_predictions = filter_predictions(output_dict.get('predictions', []), self.confidence_threshold)
@@ -95,11 +96,7 @@ def side_bar_nails():
     st.write('#### Set detection confidence threshold.')
     
     # Utiliser un label non vide pour le slider
-    confidence_threshold: float = st.slider(
-        'Set confidence threshold:',  # Label non vide pour éviter les avertissements
-        0.0, 1.0, 0.5, 0.01, key="nailsvid",
-        label_visibility="hidden"  # Masquer le label mais garder l'accessibilité
-    )
+  confidence_threshold = st.slider("Confidence Threshold", min_value=0.0, max_value=1.0, value=0.5, label_visibility="hidden")
     st.write(f"Confidence threshold set to: {confidence_threshold}")
     return confidence_threshold
 
