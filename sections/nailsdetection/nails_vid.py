@@ -86,7 +86,7 @@ class VideoTransformer(VideoTransformerBase):
 def side_bar_nails():
     st.write('#### Set detection confidence threshold.')
     
-    # Use a non-empty label and hide it for accessibility
+    # Utiliser un label non vide et le masquer pour l'accessibilité
     confidence_threshold: float = st.slider(
         'Confidence threshold',  # Label non vide pour l'accessibilité
         0.0, 1.0, 0.5, 0.01, key="nailsvid",
@@ -96,29 +96,34 @@ def side_bar_nails():
     return confidence_threshold
 
 def nails_page():
-    # Get confidence threshold from sidebar
+    # Récupérer le seuil de confiance depuis la barre latérale
     confidence_threshold = side_bar_nails()
     model_id = "laurent/1"
     
-    # Initialize webcam session state
+    # Initialiser l'état de la session pour la webcam
     if "run_webcam" not in st.session_state:
         st.session_state["run_webcam"] = False
 
     col1, col2 = st.columns(2)
 
-    # Button to start webcam
+    # Bouton pour démarrer la webcam
     with col1:
         if st.button("Run"):
             st.session_state["run_webcam"] = True
 
-    # Button to stop webcam
+    # Bouton pour arrêter la webcam
     with col2:
         if st.button("Stop"):
             st.session_state["run_webcam"] = False
 
-    # Run webcam if the session state is active
+    # Lancer la webcam si l'état de la session est actif
     if st.session_state["run_webcam"]:
-        webrtc_streamer(
-            key="nails-detection",
-            video_transformer_factory=lambda: VideoTransformer(model_id, confidence_threshold)
-        )
+        try:
+            webrtc_streamer(
+                key="nails-detection",
+                video_transformer_factory=lambda: VideoTransformer(model_id, confidence_threshold)
+            )
+        except Exception as e:
+            st.error(f"WebRTC session failed: {e}")
+    else:
+        logging.info("WebRTC streaming stopped.")
