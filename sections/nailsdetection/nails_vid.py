@@ -157,7 +157,7 @@ st.title("Nail Detection with WebRTC")
  # Run the nails detection page
 nails_page()
 
-# # Run the app
-# if __name__ == "__main__":
-#     main()
+# Run the app
+if __name__ == "__appli__":
+    appli()
 
