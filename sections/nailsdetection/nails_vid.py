@@ -88,7 +88,7 @@ def side_bar_nails():
     
     # Utiliser un label non vide et le masquer pour l'accessibilité
     confidence_threshold: float = st.slider(
-        'Confidence threshold',  # Label non vide pour l'accessibilité
+        'Confidence threshold slider',  # Label non vide pour l'accessibilité
         0.0, 1.0, 0.5, 0.01, key="nailsvid",
         label_visibility="hidden"  # Masquer le label mais garder l'accessibilité
     )
@@ -100,9 +100,12 @@ def nails_page():
     confidence_threshold = side_bar_nails()
     model_id = "laurent/1"
     
-    # Initialiser l'état de la session pour la webcam
+    # Initialiser les clés dans le session_state si elles n'existent pas
     if "run_webcam" not in st.session_state:
         st.session_state["run_webcam"] = False
+    
+    if "nails-detection:frontend" not in st.session_state:
+        st.session_state["nails-detection:frontend"] = None
 
     col1, col2 = st.columns(2)
 
