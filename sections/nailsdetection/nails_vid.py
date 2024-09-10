@@ -110,4 +110,4 @@ if __name__ == "__main__":
 
 # def nails_page():
 #     st.write("ok")
-#     return None
+    return None
