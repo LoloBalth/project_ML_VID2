@@ -154,10 +154,10 @@ st.title("Nail Detection with WebRTC")
     loop = asyncio.get_event_loop()
     handle_asyncio_exceptions(loop)
 
- # Run the nails detection page
-nails_page()
+#  # Run the nails detection page
+# nails_page()
 
-# Run the app
-if __name__ == "__appli__":
-    appli()
+# # Run the app
+# if __name__ == "__appli__":
+#     appli()
 
