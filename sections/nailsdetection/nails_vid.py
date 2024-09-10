@@ -7,6 +7,20 @@ from inference_sdk import InferenceHTTPClient
 from streamlit_webrtc import VideoTransformerBase, webrtc_streamer
 import asyncio
 
+class MyTransport:
+    def __init__(self):
+        self._sock = None
+
+    async def initialize_socket(self):
+        loop = asyncio.get_event_loop()
+        self._sock = await loop.create_datagram_endpoint(lambda: asyncio.DatagramProtocol(), local_addr=('localhost', 12345))
+
+    async def send_data(self, data):
+        if self._sock is None:
+            await self.initialize_socket()
+        # Envoi des données
+        self._sock.sendto(data)
+
 # Assurer que la boucle d'événements est correctement créée
 #loop = asyncio.get_event_loop()
 class VideoTransformer(VideoTransformerBase):
