@@ -1,4 +1,3 @@
-# if __name__ == '__appli__':
 import streamlit as st
 from sections.nailsdetection.nails import side_bar_nails, initalize_variables, print_info, treatment_nails
 from sections.regression.regression import regression_page
