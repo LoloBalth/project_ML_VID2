@@ -5,6 +5,36 @@ from PIL import Image
 from typing import List, Dict, Any
 from inference_sdk import InferenceHTTPClient
 from streamlit_webrtc import VideoTransformerBase, webrtc_streamer
+import asyncio
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
+class MyTransport:
+    def __init__(self):
+        self._sock = None
+        self._protocol = None
+
+    async def initialize_socket(self):
+        loop = asyncio.get_event_loop()
+        try:
+            self._protocol = asyncio.DatagramProtocol()
+            self._sock = await loop.create_datagram_endpoint(lambda: self._protocol, local_addr=('localhost', 12345))
+            logging.info("Socket initialized successfully.")
+        except Exception as e:
+            logging.error(f"Error initializing socket: {e}")
+
+    async def send_data(self, data, addr):
+        if self._sock is None:
+            await self.initialize_socket()
+        try:
+            if self._sock is not None:
+                self._sock.sendto(data, addr)
+            else:
+                logging.error("Socket is not initialized.")
+        except Exception as e:
+            logging.error(f"Error sending data: {e}")
 
 class VideoTransformer(VideoTransformerBase):
     def __init__(self, model_id: str, confidence_threshold: float):
@@ -22,7 +52,7 @@ class VideoTransformer(VideoTransformerBase):
             
             # Run inference
             result: Dict[str, Any] = self.client.infer(frame_pil, model_id=self.model_id)
-            output_dict: Dict[str, Any] = result  # Assume the result is already a dictionary
+            output_dict: Dict[str, Any] = result
             
             # Filter predictions by confidence
             def filter_predictions(predictions: List[Dict[str, Any]], confidence_threshold: float) -> List[Dict[str, Any]]:
