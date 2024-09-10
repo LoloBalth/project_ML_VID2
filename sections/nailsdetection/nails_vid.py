@@ -47,14 +47,10 @@ class VideoTransformer(VideoTransformerBase):
     
     def transform(self, frame: np.ndarray) -> np.ndarray:
         try:
-            # Convert the frame to a PIL Image for compatibility with the inference model
             frame_pil = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-            
-            # Run inference
             result: Dict[str, Any] = self.client.infer(frame_pil, model_id=self.model_id)
             output_dict: Dict[str, Any] = result
             
-            # Filter predictions by confidence
             def filter_predictions(predictions: List[Dict[str, Any]], confidence_threshold: float) -> List[Dict[str, Any]]:
                 return [
                     pred for pred in predictions
@@ -63,7 +59,6 @@ class VideoTransformer(VideoTransformerBase):
             
             filtered_predictions = filter_predictions(output_dict.get('predictions', []), self.confidence_threshold)
             
-            # If detections are found, annotate the frame
             if filtered_predictions:
                 frame = self.draw_polygons_on_frame(frame, filtered_predictions)
         
@@ -72,7 +67,6 @@ class VideoTransformer(VideoTransformerBase):
         return frame
 
     def draw_polygons_on_frame(self, frame: np.ndarray, predictions: List[Dict[str, Any]]) -> np.ndarray:
-        """Draw bounding boxes and polygons on a video frame."""
         for prediction in predictions:
             if 'points' in prediction:
                 points = prediction['points']
@@ -89,8 +83,9 @@ def side_bar_nails():
     st.write('#### Set detection confidence threshold.')
 
     confidence_threshold: float = st.slider(
-        'Confidence threshold: What is the acceptable confidence level?',
-        0.0, 1.0, 0.5, 0.01, key="nailsvid"
+        'Confidence threshold',  # Label non vide pour l'accessibilité
+        0.0, 1.0, 0.5, 0.01, key="nailsvid",
+        label_visibility="hidden"  # Masquer le label mais garder l'accessibilité
     )
     st.write(f"Confidence threshold set to: {confidence_threshold}")
     return confidence_threshold
@@ -99,11 +94,9 @@ def nails_page():
     confidence_threshold = side_bar_nails()
     model_id = "laurent/1"
     
-    # Initialize session state for the webcam
     if "run_webcam" not in st.session_state:
         st.session_state["run_webcam"] = False
 
-    # Display both buttons: "Run" and "Stop"
     col1, col2 = st.columns(2)
 
     with col1:
@@ -114,7 +107,6 @@ def nails_page():
         if st.button("Stop"):
             st.session_state["run_webcam"] = False  # Stop the webcam
 
-    # Run the webcam processing if "Run" was pressed
     if st.session_state["run_webcam"]:
         webrtc_streamer(
             key="nails-detection",
