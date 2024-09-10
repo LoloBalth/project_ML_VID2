@@ -90,4 +90,4 @@ def nails_page():
             key="nails-detection",
             video_transformer_factory=lambda: VideoTransformer(model_id, confidence_threshold)
         )
-
+#
