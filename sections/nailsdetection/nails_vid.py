@@ -146,9 +146,9 @@ def handle_asyncio_exceptions(loop):
 
     loop.set_exception_handler(handle_exception)
 
-# Main function for Streamlit app
-def main():
-    st.title("Nail Detection with WebRTC")
+# # Main function for Streamlit app
+# def main():
+#     st.title("Nail Detection with WebRTC")
 
     # Handle asyncio exceptions
     loop = asyncio.get_event_loop()
