@@ -96,10 +96,11 @@ class VideoTransformer(VideoTransformerBase):
 def side_bar_nails():
     st.write('#### Set detection confidence threshold.')
     
+    # Utiliser un label non vide pour le slider
     confidence_threshold: float = st.slider(
-        'Confidence threshold slider',
+        'Set confidence threshold:',  # Label non vide pour éviter les avertissements
         0.0, 1.0, 0.5, 0.01, key="nailsvid",
-        label_visibility="hidden"  # Hide label but keep accessibility
+        label_visibility="hidden"  # Masquer le label mais garder l'accessibilité
     )
     st.write(f"Confidence threshold set to: {confidence_threshold}")
     return confidence_threshold
@@ -109,7 +110,7 @@ def nails_page():
     confidence_threshold = side_bar_nails()
     model_id = "laurent/1"
     
-    # Initialize session state keys
+    # Initialize session state keys if they don't exist
     if "run_webcam" not in st.session_state:
         st.session_state["run_webcam"] = False
 
@@ -164,3 +165,4 @@ def main():
 # # Run the app
 # if __name__ == "__main__":
 #     main()
+
