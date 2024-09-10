@@ -13,36 +13,34 @@ logging.basicConfig(level=logging.INFO)
 
 # WebRTC configuration for STUN server
 RTC_CONFIGURATION = RTCConfiguration({
-    "iceServers": [
-        {"urls": ["stun:stun.l.google.com:19302"]},  # Google STUN server
-    ]
+  "iceServers": [
+    {"urls": ["stun:stun.l.google.com:19302"]},  # Google STUN server
+  ]
 })
 
 # Custom UDP Transport Class for Socket Communication
 class MyTransport:
-    def __init__(self):
-        self._sock = None
-        self._protocol = None
+  def __init__(self):
+    self._sock = None
+    self._protocol = None
 
-    async def initialize_socket(self):
-        loop = asyncio.get_event_loop()
-        try:
-            self._protocol = asyncio.DatagramProtocol()
-            self._sock = await loop.create_datagram_endpoint(lambda: self._protocol, local_addr=('localhost', 12345))
-            logging.info("Socket initialized successfully.")
-        except Exception as e:
-            logging.error(f"Error initializing socket: {e}")
+  async def initialize_socket(self):
+    loop = asyncio.get_event_loop()
+    try:
+      self._protocol = asyncio.DatagramProtocol()
+      self._sock = await loop.create_datagram_endpoint(lambda: self._protocol, local_addr=('localhost', 12345))
+      logging.info("Socket initialized successfully.")
+    except Exception as e:
+      logging.error(f"Error initializing socket: {e}")
 
-    async def send_data(self, data, addr):
-        if self._sock is None:
-            await self.initialize_socket()
-        try:
-            if self._sock is not None:
-                self._sock.sendto(data, addr)
-            else:
-                logging.error("Socket is not initialized.")
-        except Exception as e:
-            logging.error(f"Error sending data: {e}")
+  async def send_data(self, data, addr):
+    if self._sock is None:
+      await self.initialize_socket()
+    if self._sock is not None:
+      try:
+        self._sock.sendto(data, addr)
+      except Exception as e:
+        logging.error(f"Error sending data: {e}")
 
 # Transformer class for video processing
 class VideoTransformer(VideoTransformerBase):
