@@ -95,7 +95,7 @@ import streamlit as st
 from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
 import numpy as np
 import cv2
-
+def nails_page():
 class VideoTransformer(VideoTransformerBase):
     def transform(self, frame: np.ndarray) -> np.ndarray:
         # Simple passthrough
@@ -108,6 +108,6 @@ def app():
 if __name__ == "__main__":
     app()
 
-def nails_page():
-    st.write("ok")
-    return None
+# def nails_page():
+#     st.write("ok")
+#     return None
